@@ -1,0 +1,793 @@
+openapi: 3.0.3
+info:
+  title: Swagger Debt - OpenAPI 3.0
+  description: >-
+    This is a project to practice spring boot, making an application that helps you store what other people owe you.
+  version: 1.0.0
+  x-app-version: 1.0.0
+servers:
+  - url: http://localhost:8080/
+tags:
+  - name: Authentication
+    description: Login and register users
+  - name: User
+    description: User management
+  - name: User-Debt
+    description: User who has a debt management
+  - name: Debt
+    description: Debt management
+paths:
+  /api/register:
+    post:
+      tags:
+        - Authentication
+      summary: User register
+      description: Endpoint to perform a user register
+      operationId: register
+      requestBody:
+        description: Create a new user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+  /api/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Endpoint to perform a user login
+      operationId: login
+      requestBody:
+        description: Credentials to login
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/UserSuccessfullyLogged'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+  /api/users/{userId}:
+    patch:
+      security:
+        - BearerAuth: []
+      tags:
+        - User
+      summary: Update a user by Id
+      description: Endpoint to make a partial update of the user by Id
+      operationId: partialUpdateUserById
+      parameters:
+        - name: userId
+          in: path
+          description: Id of user to update
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: User updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatch'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+    delete:
+      security:
+        - BearerAuth: []
+      tags:
+        - User
+      summary: Delete a user bu Id
+      description: Endpoint to delete a user by id
+      operationId: deleteUserById
+      parameters:
+        - name: userId
+          in: path
+          description: Id of user to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+  /api/users/{userId}/user-debt:
+    post:
+      security:
+        - BearerAuth: []
+      summary: Create a new user who has a debt
+      tags:
+        - User-Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDebt'
+      responses:
+        '201':
+          description: Book created successfully
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - Invalid sessionToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+    get:
+      security:
+        - BearerAuth: []
+      summary: Get all users who has a debt from a user
+      tags:
+        - User-Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Returns a list of books from the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDebt'
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - Invalid sessionToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+  /api/users/{userId}/user-debt/{userDebtId}:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Get a user who has a debt from a user
+      tags:
+        - User-Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userDebtId
+          description: ID of the user who has a debt to get
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Returns the book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDebt'
+        '401':
+          description: Unauthorized - sessionToken incorrecta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User or book does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+    patch:
+      security:
+        - BearerAuth: []
+      summary: Update a user who has a debt field for a User
+      tags:
+        - User-Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userDebtId
+          description: ID of the user who has a debt to delete
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        description: Book updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDebtPatch'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - Invalid sessionToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User or book does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+    delete:
+      security:
+        - BearerAuth: []
+      summary: Delete user who has a debt from a user
+      tags:
+        - User-Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userDebtId
+          description: ID of the book to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - sessionToken incorrecta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User or book does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+  /api/users/{userId}/user-debt/{userDebtId}/debt:
+    post:
+      security:
+        - BearerAuth: []
+      summary: Create a debt assigned to a user-debt, for a user
+      tags:
+        - Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user to get
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userDebtId
+          description: ID of user who has a debt
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DebtPost'
+      responses:
+        '201':
+          description: Book created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Debt'
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - Invalid sessionToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+    get:
+      security:
+        - BearerAuth: []
+      summary: Get all Debt for a user-debt
+      tags:
+        - Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user to get
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userDebtId
+          description: ID of user who has a debt
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Debt'
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - Invalid sessionToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+  /api/users/{userId}/user-debt/{userDebtId}/debt/{debtId}:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Get a Debt for a user-debt
+      tags:
+        - Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user to get
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userDebtId
+          description: ID of user who has a debt
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: debtId
+          description: ID of a debt that a user-debt has
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Debt'
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - Invalid sessionToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User ID or Swap ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+    patch:
+      security:
+        - BearerAuth: []
+      summary: Change values of the debt
+      tags:
+        - Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user to get
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userDebtId
+          description: ID of user who has a debt
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: debtId
+          description: ID of a debt that a user-debt has
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DebtPatch'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - Invalid sessionToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User ID or Swap ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+    delete:
+      security:
+        - BearerAuth: []
+      summary: Delete debt
+      tags:
+        - Debt
+      parameters:
+        - in: path
+          name: userId
+          description: ID of the user to get
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userDebtId
+          description: ID of user who has a debt
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: debtId
+          description: ID of a debt that a user-debt has
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '401':
+          description: Unauthorized - Invalid sessionToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '404':
+          description: NotFound - User ID or Swap ID does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+components:
+  schemas:
+    UserSuccessfullyLogged:
+      type: object
+      properties:
+        Authorization:
+          type: string
+        UserId:
+          type: string
+    UserRegister:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        surnames:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    UserPatch:
+      type: object
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        surnames:
+          type: string
+        email:
+          type: string
+          format: email
+    Credentials:
+      type: object
+      properties:
+        username:
+          type: string
+          example: prueba1
+        password:
+          type: string
+          example: 1234567
+    UserDebt:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+    UserDebtPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    Debt:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+            type: string
+        debtValues:
+            type: array
+            items: 
+              type: integer
+    DebtPost:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+            type: string
+        debtValues:
+            type: array
+            items: 
+              type: integer
+    DebtPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+            type: string
+        debtValues:
+            type: array
+            items: 
+              type: integer
+    ExceptionResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          default: 418
+          multipleOf: 1
+          enum:
+            - 202
+            - 502
+            - 400
+            - 409
+            - 100
+            - 201
+            - 417
+            - 424
+            - 403
+            - 504
+            - 410
+            - 505
+            - 418
+            - 419
+            - 507
+            - 500
+            - 411
+            - 423
+            - 420
+            - 405
+            - 301
+            - 302
+            - 207
+            - 300
+            - 511
+            - 204
+            - 203
+            - 406
+            - 404
+            - 501
+            - 304
+            - 200
+            - 206
+            - 402
+            - 308
+            - 412
+            - 428
+            - 102
+            - 407
+            - 431
+            - 408
+            - 413
+            - 414
+            - 416
+            - 205
+            - 303
+            - 503
+            - 101
+            - 307
+            - 429
+            - 401
+            - 451
+            - 422
+            - 415
+            - 305
+            - 421
+        code:
+          type: string
+          default: im_a_teapot
+        message:
+          type: string
+          default: I'm a teapot
+        appVersion:
+          type: string
+          default: 1.0.0
+  securitySchemes:
+    BearerAuth:
+      description: >-
+        A valid Access Token is required to access protected resources. To
+        obtain one, simply authenticate to the API through the authentication
+        endpoint. If the authentication is successful, an Access Token and a
+        Refresh Token will be returned. 
+
+          Sample username and password to use on ```/api/login``` endpoint: ```prueba1``` / ```1234567```
+      type: http
+      scheme: bearer
+    OpenID:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
