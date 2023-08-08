@@ -60,7 +60,7 @@ paths:
           content:
             application/json:
               schema:
-               $ref: '#/components/schemas/UserSuccessfullyLogged'
+                $ref: '#/components/schemas/UserSuccessfullyLogged'
         '400':
           description: Bad Request
           content:
@@ -675,11 +675,11 @@ components:
         name:
           type: string
         description:
-            type: string
+          type: string
         debtValues:
-            type: array
-            items: 
-              type: integer
+          type: array
+          items:
+            type: integer
     DebtPost:
       type: object
       properties:
@@ -688,22 +688,22 @@ components:
         name:
           type: string
         description:
-            type: string
+          type: string
         debtValues:
-            type: array
-            items: 
-              type: integer
+          type: array
+          items:
+            type: integer
     DebtPatch:
       type: object
       properties:
         name:
           type: string
         description:
-            type: string
+          type: string
         debtValues:
-            type: array
-            items: 
-              type: integer
+          type: array
+          items:
+            type: integer
     ExceptionResponse:
       type: object
       properties:
