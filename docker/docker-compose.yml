@@ -1,0 +1,17 @@
+version: '3.9'
+volumes:
+  data-write:
+  data-read:
+services:
+  db-write:
+    image: mariadb
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: debt
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1234
+    volumes:
+      - data-write:/var/lib/mysql
+    ports:
+      - "3306:3306"
